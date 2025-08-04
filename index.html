@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARIA - Advanced AI Assistant</title>
+  <style>
+    /* ================ YOUR ORIGINAL CSS ================ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; overflow-x: hidden; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+    .header { text-align: center; margin-bottom: 30px; animation: slideDown 1s ease-out; }
+    .logo { font-size: 2.5rem; font-weight: bold; color: #fff; margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+      animation: glow 2s ease-in-out infinite alternate; }
+    .subtitle { color: #e8e3ff; font-size: 1.1rem; opacity: 0.9; }
+    .chat-container { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+      border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex;
+      flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: slideUp 1s ease-out; }
+    .messages { flex: 1; padding: 20px; overflow-y: auto; max-height: 500px; }
+    .message { margin-bottom: 20px; animation: fadeInUp 0.5s ease-out; }
+    .user-message { text-align: right; }
+    .ai-message { text-align: left; }
+    .message-bubble { display: inline-block; padding: 15px 20px; border-radius: 20px;
+      max-width: 80%; word-wrap: break-word; position: relative; animation: bubbleIn 0.3s ease-out; }
+    .user-message .message-bubble { background: linear-gradient(135deg, #8a2be2, #9932cc);
+      color: white; box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3); }
+    .ai-message .message-bubble { background: rgba(255,255,255,0.15); color: #fff;
+      border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .input-container { padding: 20px; background: rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.1); }
+    .input-wrapper { display: flex; gap: 10px; align-items: center; }
+    .input-field { flex: 1; padding: 15px 20px; border: none; border-radius: 25px;
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 16px; outline: none;
+      transition: all 0.3s ease; backdrop-filter: blur(10px); }
+    .input-field::placeholder { color: rgba(255,255,255,0.6); }
+    .input-field:focus { background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 20px rgba(138,43,226,0.3); transform: scale(1.02); }
+    .send-btn { padding:15px; border:none; border-radius:50%; background: linear-gradient(135deg, #8a2be2, #9932cc);
+      color:white; width:50px; height:50px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: all 0.3s ease; }
+    .send-btn:hover { transform:scale(1.1); box-shadow: 0 5px 20px rgba(138,43,226,0.4); }
+    .send-btn:active { transform: scale(0.95); }
+    .typing-indicator { display: none; padding: 15px 20px; color: rgba(255,255,255,0.7); font-style: italic; }
+    .typing-dots { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background-color: #8a2be2;
+      animation: typing 1.4s infinite ease-in-out; margin: 0 2px; }
+    @keyframes glow { from { text-shadow: 0 0 20px rgba(138,43,226,0.8); } to { text-shadow: 0 0 30px rgba(138,43,226,1), 0 0 40px rgba(138,43,226,0.8); }}
+    @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes bubbleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes typing { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+    @keyframes float { 0%,100%{ transform: translateY(0) rotate(0deg);} 50%{transform: translateY(-20px) rotate(180deg);} }
+    @media (max-width:768px) { .container{padding:10px;} .logo{font-size:2rem;} .message-bubble{max-width:90%;} }
+    /* ================ END CSS ================ */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">ARIA</div>
+      <div class="subtitle">Advanced Reasoning & Intelligence Assistant</div>
+    </div>
+    <div class="chat-container">
+      <div class="messages" id="messages">
+        <div class="message ai-message">
+          <div class="message-bubble">
+            Hello! I'm ARIA, your advanced AI assistant. Ask me anything!
+          </div>
+        </div>
+      </div>
+      <div class="typing-indicator" id="typingIndicator">
+        ARIA is thinking <span class="typing-dots"></span><span class="typing-dots"></span><span class="typing-dots"></span>
+      </div>
+      <div class="input-container">
+        <div class="input-wrapper">
+          <input type="text" class="input-field" id="messageInput" placeholder="Ask me anything..." />
+          <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const encodedToken = "aGZfRlhQYUtxWW9FbFlyS0trTGh5SFZwQ29aR29PdVpDVEp2TQ=="; // base64 for your token
+    const HF_API_TOKEN = atob(encodedToken);
+    const HF_MODEL = "meta-llama/Meta-Llama-3-8B-Instruct";
+
+    const greetings = ["hi","hello","hey"];
+    const identity = {
+      "what is your name": "🤖 I'm ARIA, your friendly AI assistant!",
+      "who made you": "🛠️ I was created by Advaith ✨",
+      "who created you": "🛠️ I was created by Advaith ✨",
+    };
+
+    function addMessage(content, isUser=false){
+      const msg = document.createElement("div");
+      msg.className = 'message ' + (isUser ? "user-message" : "ai-message");
+      const bubble = document.createElement("div");
+      bubble.className = 'message-bubble';
+      bubble.innerHTML = content;
+      msg.appendChild(bubble);
+      document.getElementById("messages").appendChild(msg);
+      msg.scrollIntoView();
+    }
+
+    function showTyping(){ document.getElementById("typingIndicator").style.display = "block"; }
+    function hideTyping(){ document.getElementById("typingIndicator").style.display = "none"; }
+
+    async function sendMessage(){
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim(); if(!text) return;
+      addMessage(text, true);
+      input.value = ""; showTyping();
+      const reply = await generateResponse(text);
+      hideTyping(); addMessage(reply, false);
+    }
+
+    async function generateResponse(message){
+      const lower = message.toLowerCase().trim();
+      if (greetings.some(g => lower.startsWith(g))) {
+        return "👋 Hello! I'm ARIA. What would you like to know?";
+      }
+      for (let key in identity) {
+        if (lower.includes(key)) return identity[key];
+      }
+
+      try {
+        const resp = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${HF_API_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ inputs: message, parameters:{ max_new_tokens: 150, temperature:0.7 } })
+        });
+        const data = await resp.json();
+        const out = data.generated_text || data[0]?.generated_text || "";
+        if (out) return out.trim();
+      } catch(e) {
+        console.error(e);
+      }
+      return "🤔 I couldn't generate a response. Try rephrasing.";
+    }
+
+    document.getElementById("messageInput").addEventListener("keypress", e=>{
+      if(e.key==="Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
